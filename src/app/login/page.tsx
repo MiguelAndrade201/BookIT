@@ -5,6 +5,7 @@ import { KeyRound } from 'lucide-react';
 import { ADMIN_SESSION_COOKIE, createSessionToken, hashPassword, legacyAdminSessionToken, parseSessionToken, verifyPassword } from '@/lib/auth';
 import { Logo } from '@/components/Logo';
 import { prisma } from '@/lib/prisma';
+import { LoginPasswordField } from './LoginPasswordField';
 
 function safeNext(value?: string) {
   if (!value || !value.startsWith('/') || value.startsWith('//')) return '/admin';
@@ -14,19 +15,27 @@ function safeNext(value?: string) {
 async function login(formData: FormData) {
   'use server';
 
-  const username = String(formData.get('username') || '');
+  const username = String(formData.get('username') || '').trim();
+  const normalizedUsername = username.toLowerCase();
   const password = String(formData.get('password') || '');
   const next = safeNext(String(formData.get('next') || '/admin'));
   const adminUsername = process.env.ADMIN_USERNAME ?? process.env.ADMIN_EMAIL ?? 'admin@example.com';
   const adminPassword = process.env.ADMIN_PASSWORD ?? 'change-this-password';
-  const user = await prisma.user.findFirst({ where: { OR: [{ email: username }, { name: username }] } });
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: { equals: username, mode: 'insensitive' } },
+        { name: { equals: username, mode: 'insensitive' } }
+      ]
+    }
+  });
 
   let token: string | null = null;
 
   if (user && await verifyPassword(password, user.passwordHash)) {
     await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
     token = await createSessionToken({ id: user.id, name: user.name, email: user.email, role: user.role });
-  } else if (username === adminUsername && password === adminPassword) {
+  } else if (normalizedUsername === adminUsername.toLowerCase() && password === adminPassword) {
     token = await createSessionToken({ id: 'env-super-admin', name: adminUsername, email: process.env.ADMIN_EMAIL ?? 'admin@example.com', role: 'SUPER_ADMIN' });
   }
 
@@ -59,7 +68,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <Link href="/"><Logo /></Link>
         </div>
       </header>
-      <section className="mx-auto flex min-h-[calc(100vh-76px)] max-w-md items-center px-4 py-8 sm:py-12">
+      <section className="mx-auto flex min-h-[calc(100vh-76px)] max-w-md items-center px-4 py-6 sm:py-12">
         <form action={login} className="card w-full p-6">
           <div className="mb-6 flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-sage text-white">
@@ -73,13 +82,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <input type="hidden" name="next" value={next} />
           <div className="grid gap-4">
             <label>
-              <span className="label">Username</span>
+              <span className="label">Username or email *</span>
               <input className="input mt-1" type="text" name="username" autoComplete="username" required />
             </label>
-            <label>
-              <span className="label">Password</span>
-              <input className="input mt-1" type="password" name="password" autoComplete="current-password" required />
-            </label>
+            <LoginPasswordField />
             {sp.error ? <div className="rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700">Username or password is incorrect.</div> : null}
             <button className="btn-primary" type="submit">Sign In</button>
             <a className="btn-secondary text-center" href="/register">Register User</a>

@@ -38,7 +38,7 @@ async function prepareUploadFile(file: File) {
   if (file.type === 'image/gif') return file;
 
   const image = await loadImage(file);
-  const maxDimension = 1400;
+  const maxDimension = 900;
   const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
   const width = Math.max(1, Math.round(image.width * scale));
   const height = Math.max(1, Math.round(image.height * scale));
@@ -53,7 +53,7 @@ async function prepareUploadFile(file: File) {
   context.drawImage(image, 0, 0, width, height);
 
   const blob = await new Promise<Blob | null>(resolve => {
-    canvas.toBlob(resolve, 'image/jpeg', 0.72);
+    canvas.toBlob(resolve, 'image/jpeg', 0.65);
   });
 
   if (!blob) return file;
@@ -155,7 +155,7 @@ export function NewPropertyForm({
     }
 
     const totalUploadBytes = preparedImages.reduce((total, image) => total + image.size, 0);
-    if (totalUploadBytes > 22 * 1024 * 1024) {
+    if (totalUploadBytes > 4 * 1024 * 1024) {
       setError('Those images are still too large after compression. Please remove a few or choose smaller photos.');
       setIsSubmitting(false);
       return;
@@ -187,41 +187,89 @@ export function NewPropertyForm({
   return (
     <form onSubmit={submit} className="mt-6 grid gap-5 rounded-xl border border-black/10 bg-white p-5 shadow-soft">
       <section className="grid gap-4 lg:grid-cols-2">
-        <input className="input" name="name" placeholder="Property name" required />
-        <input className="input" name="slug" placeholder="url-slug" />
-        <input className="input" name="location" placeholder="Location" required />
-        <input className="input" name="address" placeholder="Full address" />
-        <input className="input lg:col-span-2" name="tagline" placeholder="Short tagline" required />
-        <textarea className="input min-h-32 lg:col-span-2" name="description" placeholder="Description" required />
+        <label>
+          <span className="label">Property name *</span>
+          <input className="input mt-1" name="name" required />
+        </label>
+        <label>
+          <span className="label">URL slug (optional)</span>
+          <input className="input mt-1" name="slug" placeholder="st-helens-home" />
+        </label>
+        <label>
+          <span className="label">Location *</span>
+          <input className="input mt-1" name="location" required />
+        </label>
+        <label>
+          <span className="label">Full address (optional)</span>
+          <input className="input mt-1" name="address" />
+        </label>
+        <label className="lg:col-span-2">
+          <span className="label">Short tagline *</span>
+          <input className="input mt-1" name="tagline" required />
+        </label>
+        <label className="lg:col-span-2">
+          <span className="label">Description *</span>
+          <textarea className="input mt-1 min-h-32" name="description" required />
+        </label>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <input className="input" name="maxGuests" type="number" min="1" placeholder="Guests" required />
-        <input className="input" name="bedrooms" type="number" min="0" placeholder="Bedrooms" required />
-        <input className="input" name="bathrooms" type="number" min="0" step=".5" placeholder="Bathrooms" required />
+        <label>
+          <span className="label">Guests *</span>
+          <input className="input mt-1" name="maxGuests" type="number" min="1" required />
+        </label>
+        <label>
+          <span className="label">Bedrooms *</span>
+          <input className="input mt-1" name="bedrooms" type="number" min="0" required />
+        </label>
+        <label>
+          <span className="label">Bathrooms *</span>
+          <input className="input mt-1" name="bathrooms" type="number" min="0" step=".5" required />
+        </label>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <input className="input" name="baseNightlyRate" type="number" min="0" step=".01" placeholder="Nightly GBP" required />
-        <input className="input" name="cleaningFee" type="number" min="0" step=".01" placeholder="Cleaning GBP" />
-        <select className="input" name="status" defaultValue="DRAFT">
-          <option value="DRAFT">Draft</option>
-          <option value="LIVE">Live</option>
-        </select>
+        <label>
+          <span className="label">Nightly GBP *</span>
+          <input className="input mt-1" name="baseNightlyRate" type="number" min="0" step=".01" required />
+        </label>
+        <label>
+          <span className="label">Cleaning GBP (optional)</span>
+          <input className="input mt-1" name="cleaningFee" type="number" min="0" step=".01" />
+        </label>
+        <label>
+          <span className="label">Status *</span>
+          <select className="input mt-1" name="status" defaultValue="DRAFT">
+            <option value="DRAFT">Draft</option>
+            <option value="LIVE">Live</option>
+          </select>
+        </label>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <input className="input" name="minNights" type="number" min="1" placeholder="Min nights" defaultValue="1" required />
-        <input className="input" name="weekendRate" type="number" min="0" step=".01" placeholder="Weekend nightly GBP" />
-        <input className="input" name="bankHolidayRate" type="number" min="0" step=".01" placeholder="Bank holiday nightly GBP" />
-        <label className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold">
+        <label>
+          <span className="label">Minimum nights *</span>
+          <input className="input mt-1" name="minNights" type="number" min="1" defaultValue="1" required />
+        </label>
+        <label>
+          <span className="label">Weekend nightly GBP (optional)</span>
+          <input className="input mt-1" name="weekendRate" type="number" min="0" step=".01" />
+        </label>
+        <label>
+          <span className="label">Bank holiday nightly GBP (optional)</span>
+          <input className="input mt-1" name="bankHolidayRate" type="number" min="0" step=".01" />
+        </label>
+        <label className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold sm:mt-5">
           <input type="checkbox" name="instantBook" className="h-4 w-4" />
           Automatically confirm bookings
         </label>
-        <select className="input sm:col-span-2" name="hostId" defaultValue={hosts.length === 1 ? hosts[0].id : ''}>
-          <option value="">{hosts.length ? 'Choose host' : 'No admin hosts available'}</option>
-          {hosts.map(host => <option key={host.id} value={host.id}>{host.name} ({host.email})</option>)}
-        </select>
+        <label className="sm:col-span-2">
+          <span className="label">Host *</span>
+          <select className="input mt-1" name="hostId" defaultValue={hosts.length === 1 ? hosts[0].id : ''}>
+            <option value="">{hosts.length ? 'Choose host' : 'No admin hosts available'}</option>
+            {hosts.map(host => <option key={host.id} value={host.id}>{host.name} ({host.email})</option>)}
+          </select>
+        </label>
         {!hosts.length ? (
           <p className="text-sm font-semibold text-red-700 sm:col-span-3">
             {isSuperAdmin ? 'Create an admin user first, then assign them as the host.' : 'Your admin user could not be found as a host.'}
@@ -230,7 +278,10 @@ export function NewPropertyForm({
       </section>
 
       <section>
-        <textarea className="input min-h-24" name="amenities" placeholder="Amenities, separated by commas or new lines" />
+        <label>
+          <span className="label">Amenities (optional)</span>
+          <textarea className="input mt-1 min-h-24" name="amenities" placeholder="WiFi, parking, hot tub" />
+        </label>
       </section>
 
       <section>
@@ -276,7 +327,9 @@ export function NewPropertyForm({
               >
                 <div className="relative aspect-[4/3] bg-cream">
                   <img src={image.previewUrl} alt="" draggable={false} className="h-full w-full select-none object-cover" />
-                  {index === 0 ? <span className="absolute left-2 top-2 rounded-full bg-sage px-2.5 py-1 text-xs font-bold text-white">Hero</span> : null}
+                  <span className="absolute left-2 top-2 rounded-full bg-sage px-2.5 py-1 text-xs font-bold text-white">
+                    {index + 1}{index === 0 ? ' Hero' : ''}
+                  </span>
                   <button
                     type="button"
                     onClick={() => removeImage(image.id)}

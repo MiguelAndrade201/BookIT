@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { ADMIN_SESSION_COOKIE, hashPassword, parseSessionToken } from '@/lib/auth';
+import { slugify } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
 
 async function createUser(formData: FormData) {
@@ -9,10 +10,14 @@ async function createUser(formData: FormData) {
   const session = await parseSessionToken((await cookies()).get(ADMIN_SESSION_COOKIE)?.value);
   if (session?.role !== 'SUPER_ADMIN') redirect('/admin');
 
+  const name = String(formData.get('name') || '').trim();
+  const email = String(formData.get('email') || '').trim().toLowerCase();
+  const generatedEmail = `${slugify(name) || crypto.randomUUID()}-${Date.now()}@users.letsbookit.local`;
+
   await prisma.user.create({
     data: {
-      name: String(formData.get('name')),
-      email: String(formData.get('email')),
+      name,
+      email: email || generatedEmail,
       role: String(formData.get('role')),
       passwordHash: await hashPassword(String(formData.get('password')))
     }
@@ -31,14 +36,26 @@ export default async function UsersPage() {
       <section className="mt-6 grid gap-6 lg:grid-cols-[420px_1fr]">
         <form action={createUser} className="grid gap-3 rounded-xl border border-black/10 bg-white p-5 shadow-soft">
           <h2 className="font-serif text-2xl">Add user</h2>
-          <input className="input" name="name" placeholder="Name" required />
-          <input className="input" type="email" name="email" placeholder="Email" required />
-          <input className="input" type="password" name="password" placeholder="Password" minLength={8} required />
-          <select className="input" name="role" defaultValue="CUSTOMER">
-            <option value="SUPER_ADMIN">Super Admin</option>
-            <option value="ADMIN">Admin</option>
-            <option value="CUSTOMER">Customer</option>
-          </select>
+          <label>
+            <span className="label">Username *</span>
+            <input className="input mt-1" name="name" required />
+          </label>
+          <label>
+            <span className="label">Email (optional)</span>
+            <input className="input mt-1" type="email" name="email" />
+          </label>
+          <label>
+            <span className="label">Password *</span>
+            <input className="input mt-1" type="password" name="password" minLength={8} required />
+          </label>
+          <label>
+            <span className="label">Role *</span>
+            <select className="input mt-1" name="role" defaultValue="CUSTOMER">
+              <option value="SUPER_ADMIN">Super Admin</option>
+              <option value="ADMIN">Admin</option>
+              <option value="CUSTOMER">Customer</option>
+            </select>
+          </label>
           <button className="btn-primary">Create User</button>
         </form>
         <div className="overflow-hidden rounded-xl border border-black/10 bg-white shadow-soft">

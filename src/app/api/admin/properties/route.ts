@@ -21,15 +21,25 @@ async function saveImage(file: File, slug: string, index: number) {
     throw new Error('Only image uploads are supported.');
   }
 
-  const uploadsDir = path.join(process.cwd(), 'uploads', 'properties', slug);
-  await mkdir(uploadsDir, { recursive: true });
-
   const filename = `${String(index + 1).padStart(2, '0')}-${crypto.randomUUID()}${cleanExtension(file)}`;
-  const filePath = path.join(uploadsDir, filename);
   const bytes = Buffer.from(await file.arrayBuffer());
+  const dataUrl = `data:${file.type || 'image/jpeg'};base64,${bytes.toString('base64')}`;
 
-  await writeFile(filePath, bytes);
-  return `/uploads/properties/${slug}/${filename}`;
+  if (process.env.VERCEL) return dataUrl;
+
+  try {
+    const uploadsDir = path.join(process.cwd(), 'uploads', 'properties', slug);
+    await mkdir(uploadsDir, { recursive: true });
+    const filePath = path.join(uploadsDir, filename);
+    await writeFile(filePath, bytes);
+    return `/uploads/properties/${slug}/${filename}`;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'EROFS') {
+      return dataUrl;
+    }
+
+    throw error;
+  }
 }
 
 function errorMessage(error: unknown) {
