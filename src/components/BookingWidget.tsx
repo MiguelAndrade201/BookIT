@@ -48,6 +48,7 @@ export function BookingWidget({
   const [guests, setGuests] = useState(initialGuests ?? '4');
   const [location, setLocation] = useState(selectedLocation);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const checkOutMin = checkIn ? dateInputValue(addDays(new Date(`${checkIn}T00:00:00`), 1)) : today;
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -62,11 +63,9 @@ export function BookingWidget({
         <label className="min-w-0">
           <span className="label">Check-in</span>
           <input
-            className="input mt-1 font-mono"
-            type="text"
-            inputMode="numeric"
-            pattern="\d{4}-\d{2}-\d{2}"
-            placeholder="YYYY-MM-DD"
+            className="input date-input mt-1"
+            type="date"
+            min={today}
             value={checkIn}
             onChange={e => setCheckIn(e.target.value)}
             required
@@ -75,11 +74,9 @@ export function BookingWidget({
         <label className="min-w-0">
           <span className="label">Check-out</span>
           <input
-            className="input mt-1 font-mono"
-            type="text"
-            inputMode="numeric"
-            pattern="\d{4}-\d{2}-\d{2}"
-            placeholder="YYYY-MM-DD"
+            className="input date-input mt-1"
+            type="date"
+            min={checkOutMin}
             value={checkOut}
             onChange={e => setCheckOut(e.target.value)}
             required

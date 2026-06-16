@@ -8,9 +8,34 @@ import { PropertySummary } from '@/components/PropertySummary';
 import { getBlockedRanges } from '@/lib/availability';
 import { formatMoney } from '@/lib/money';
 import { geocodeAddress } from '@/lib/googleMaps';
-import { Car, Flame, KeyRound, MapPin, Shirt, Sparkles, Star, Utensils, Waves, Wifi, Wine } from 'lucide-react';
+import { Baby, Bath, BedDouble, Camera, Car, Cctv, CircleParking, Coffee, CookingPot, Dog, Dumbbell, Flame, KeyRound, MapPin, Shirt, ShowerHead, Snowflake, Sparkles, Star, Trees, Tv, Utensils, WashingMachine, Waves, Wifi, Wine } from 'lucide-react';
 
-const amenityIcons = { Car, Flame, KeyRound, Shirt, Sparkles, Utensils, Waves, Wifi, Wine };
+const amenityIcons = {
+  Baby,
+  Bath,
+  BedDouble,
+  Camera,
+  Car,
+  Cctv,
+  CircleParking,
+  Coffee,
+  CookingPot,
+  Dog,
+  Dumbbell,
+  Flame,
+  KeyRound,
+  Shirt,
+  ShowerHead,
+  Snowflake,
+  Sparkles,
+  Trees,
+  Tv,
+  Utensils,
+  WashingMachine,
+  Waves,
+  Wifi,
+  Wine
+};
 
 function AmenityIcon({ icon }: { icon: string }) {
   const Icon = amenityIcons[icon as keyof typeof amenityIcons] ?? Sparkles;

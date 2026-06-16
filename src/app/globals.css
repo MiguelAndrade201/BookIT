@@ -13,7 +13,9 @@ input, select, button, textarea { font: inherit; }
 .btn-primary { @apply rounded-2xl bg-sage px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-moss focus-ring; }
 .btn-secondary { @apply rounded-2xl border border-black/10 bg-white px-5 py-3 font-semibold text-ink transition hover:bg-cream focus-ring; }
 .input { @apply min-w-0 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-[16px] focus-ring sm:text-sm; }
-input[type="date"].input { display: block; max-width: 100%; min-width: 0; overflow: hidden; padding-left: 0.75rem; padding-right: 0.35rem; line-height: 1.25; }
-input[type="date"].input::-webkit-date-and-time-value { min-width: 0; text-align: left; }
-input[type="date"].input::-webkit-calendar-picker-indicator { margin-left: 0; padding-left: 0; }
+input[type="date"].input,
+.date-input { display: block; inline-size: 100%; max-inline-size: 100%; min-inline-size: 0; overflow: hidden; padding-left: 0.65rem; padding-right: 0.25rem; line-height: 1.25; }
+input[type="date"].input::-webkit-datetime-edit { display: block; min-inline-size: 0; max-inline-size: 100%; overflow: hidden; padding: 0; }
+input[type="date"].input::-webkit-date-and-time-value { min-inline-size: 0; max-inline-size: 100%; text-align: left; }
+input[type="date"].input::-webkit-calendar-picker-indicator { margin-left: 0; padding-left: 0; padding-right: 0; }
 .label { @apply text-[11px] font-bold uppercase tracking-wider text-black/60; }
