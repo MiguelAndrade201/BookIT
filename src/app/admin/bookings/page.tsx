@@ -1,5 +1,6 @@
 import { Check, X } from 'lucide-react';
 import Link from 'next/link';
+import { revalidatePath } from 'next/cache';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { BookingsCalendar } from '@/components/admin/BookingsCalendar';
 import { CopyLinkButton } from '@/components/admin/CopyLinkButton';
@@ -8,9 +9,13 @@ import { dollarsToCents, formatDateRange, statusBadgeClass } from '@/lib/admin';
 import { formatMoney } from '@/lib/money';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 async function updateBookingStatus(formData: FormData) {
   'use server';
   await prisma.booking.update({ where: { id: String(formData.get('id')) }, data: { status: String(formData.get('status')) } });
+  revalidatePath('/admin/bookings');
+  revalidatePath('/admin/calendars');
 }
 
 async function createCustomBooking(formData: FormData) {

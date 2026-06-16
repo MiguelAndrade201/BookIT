@@ -259,9 +259,12 @@ export function NewPropertyForm({
           <span className="label">Bank holiday nightly GBP (optional)</span>
           <input className="input mt-1" name="bankHolidayRate" type="number" min="0" step=".01" />
         </label>
-        <label className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold sm:mt-5">
-          <input type="checkbox" name="instantBook" className="h-4 w-4" />
-          Automatically confirm bookings
+        <label>
+          <span className="label">Booking approval *</span>
+          <select className="input mt-1" name="bookingMode" defaultValue="AUTO">
+            <option value="AUTO">Automatically confirm bookings</option>
+            <option value="APPROVAL">Require host approval</option>
+          </select>
         </label>
         <label className="sm:col-span-2">
           <span className="label">Host *</span>

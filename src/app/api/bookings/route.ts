@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { isAvailable } from '@/lib/availability';
@@ -30,5 +31,8 @@ export async function POST(req: Request) {
   const guest = await prisma.guest.create({ data: { firstName: data.firstName, lastName: data.lastName, email: data.email, phone: data.phone ?? undefined } });
   const booking = await prisma.booking.create({ data: { propertyId: data.propertyId, guestId: guest.id, checkIn, checkOut, guests: data.guests, nights, nightlyRate: property.baseNightlyRate, cleaningFee: property.cleaningFee, serviceFee: 0, taxes: 0, total, notes, status: property.instantBook ? 'CONFIRMED' : 'PENDING' } });
   if (customLink) await prisma.customBookingLink.update({ where: { id: customLink.id }, data: { status: 'USED' } });
-  return NextResponse.json({ bookingId: booking.id });
+  revalidatePath('/admin/bookings');
+  revalidatePath('/admin/calendars');
+  revalidatePath(`/properties/${property.slug}`);
+  return NextResponse.json({ bookingId: booking.id, status: booking.status });
 }

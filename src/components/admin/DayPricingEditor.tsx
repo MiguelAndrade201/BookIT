@@ -22,9 +22,9 @@ export function DayPricingEditor({
 
   return (
     <>
-      <button type="button" className="flex h-full min-h-24 w-full flex-col rounded-lg border border-blue-200 bg-blue-50 p-2 text-left hover:bg-blue-100" onClick={() => setOpen(true)}>
-        <span className="text-sm font-bold">{day}</span>
-        <span className="mt-auto text-xs font-semibold text-blue-900">{price}</span>
+      <button type="button" className="flex h-full min-h-16 w-full flex-col rounded-md border border-blue-200 bg-blue-50 p-1 text-left hover:bg-blue-100 sm:min-h-24 sm:rounded-lg sm:p-2" onClick={() => setOpen(true)}>
+        <span className="text-xs font-bold sm:text-sm">{day}</span>
+        <span className="mt-auto truncate text-[10px] font-semibold text-blue-900 sm:text-xs">{price}</span>
       </button>
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setOpen(false)}>

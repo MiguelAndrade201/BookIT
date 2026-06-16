@@ -252,10 +252,10 @@ export default async function CalendarsPage({
               </div>
             </div>
 
-            <div className="mt-5 overflow-x-auto">
-            <div className="grid min-w-[760px] grid-cols-7 gap-px overflow-hidden rounded-xl border border-black/10 bg-black/10">
+            <div className="mt-5">
+            <div className="grid w-full grid-cols-7 gap-px overflow-hidden rounded-xl border border-black/10 bg-black/10">
               {dayLabels.map(label => (
-                <div key={label} className="bg-sand/50 px-2 py-3 text-center text-xs font-bold uppercase tracking-wider text-black/55">{label}</div>
+                <div key={label} className="bg-sand/50 px-1 py-2 text-center text-[10px] font-bold uppercase text-black/55 sm:px-2 sm:py-3 sm:text-xs sm:tracking-wider">{label}</div>
               ))}
               {days.map(day => {
                 const dayStart = day.date;
@@ -272,7 +272,7 @@ export default async function CalendarsPage({
                   : dayBlocks.map(block => block.source).join(', ');
 
                 return (
-                  <div key={day.key} className={`min-h-28 bg-white p-2 ${day.isCurrentMonth ? '' : 'text-black/30'}`}>
+                  <div key={day.key} className={`min-h-20 bg-white p-1 sm:min-h-28 sm:p-2 ${day.isCurrentMonth ? '' : 'text-black/30'}`}>
                     {mode === 'pricing' ? (
                       <DayPricingEditor
                         action={setDayPrice}
@@ -288,7 +288,7 @@ export default async function CalendarsPage({
                       <input type="hidden" name="month" value={selectedMonthKey} />
                       <input type="hidden" name="date" value={day.key} />
                       <button
-                        className={`flex h-full min-h-24 w-full flex-col rounded-lg border p-2 text-left transition ${
+                        className={`flex h-full min-h-16 w-full flex-col rounded-md border p-1 text-left transition sm:min-h-24 sm:rounded-lg sm:p-2 ${
                           isUnavailable
                             ? 'border-red-200 bg-red-50 text-red-900 hover:bg-red-100'
                             : 'border-transparent bg-white hover:border-green-200 hover:bg-green-50'
@@ -297,13 +297,13 @@ export default async function CalendarsPage({
                         title={isBooked ? 'Direct bookings cannot be made available here' : isBlocked ? 'Make available' : 'Block this day'}
                       >
                         <span className="flex items-center justify-between gap-2">
-                          <span className="text-sm font-bold">{day.date.getDate()}</span>
-                          {isUnavailable ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4 text-green-700" />}
+                          <span className="text-xs font-bold sm:text-sm">{day.date.getDate()}</span>
+                          {isUnavailable ? <Lock className="h-3 w-3 sm:h-4 sm:w-4" /> : <Unlock className="h-3 w-3 text-green-700 sm:h-4 sm:w-4" />}
                         </span>
-                        <span className="mt-auto pt-4 text-xs font-semibold">
+                        <span className="mt-auto pt-2 text-[10px] font-semibold leading-tight sm:pt-4 sm:text-xs">
                           {isUnavailable ? unavailableLabel : 'Available'}
                         </span>
-                        {sourceLabel ? <span className="mt-1 truncate text-[11px] opacity-70">{sourceLabel}</span> : null}
+                        {sourceLabel ? <span className="mt-1 hidden truncate text-[11px] opacity-70 sm:block">{sourceLabel}</span> : null}
                       </button>
                     </form>
                     )}
