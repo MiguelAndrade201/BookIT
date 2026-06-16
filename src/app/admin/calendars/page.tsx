@@ -8,6 +8,8 @@ import { prisma } from '@/lib/prisma';
 import { dollarsToCents } from '@/lib/admin';
 import { formatMoney } from '@/lib/money';
 
+export const dynamic = 'force-dynamic';
+
 const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function dateKey(date: Date) {

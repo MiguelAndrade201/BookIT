@@ -11,6 +11,8 @@ import { formatMoney } from '@/lib/money';
 import { prisma } from '@/lib/prisma';
 import { DeletePropertyButton } from './DeletePropertyButton';
 
+export const dynamic = 'force-dynamic';
+
 async function togglePropertyStatus(formData: FormData) {
   'use server';
   const id = String(formData.get('id'));

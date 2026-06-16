@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 import { Prisma } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { dollarsToCents, slugify } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
@@ -134,7 +135,12 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json({ propertyId: property.id });
+    revalidatePath('/');
+    revalidatePath('/admin/properties');
+    revalidatePath('/admin/calendars');
+    revalidatePath(`/properties/${property.slug}`);
+
+    return NextResponse.json({ propertyId: property.id, slug: property.slug });
   } catch (error) {
     const message = errorMessage(error);
     console.error('Property creation failed:', error);

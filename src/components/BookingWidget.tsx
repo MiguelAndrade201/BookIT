@@ -48,7 +48,6 @@ export function BookingWidget({
   const [guests, setGuests] = useState(initialGuests ?? '4');
   const [location, setLocation] = useState(selectedLocation);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const checkOutMin = checkIn ? dateInputValue(addDays(new Date(`${checkIn}T00:00:00`), 1)) : today;
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,8 +59,32 @@ export function BookingWidget({
   return (
     <form onSubmit={submit} className="card p-4 md:p-5">
       <div className={compact ? 'grid gap-3' : 'grid gap-3 md:grid-cols-4'}>
-        <label className="min-w-0"><span className="label">Check-in</span><input className="input mt-1" type="date" min={today} value={checkIn} onChange={e => setCheckIn(e.target.value)} required /></label>
-        <label className="min-w-0"><span className="label">Check-out</span><input className="input mt-1" type="date" min={checkOutMin} value={checkOut} onChange={e => setCheckOut(e.target.value)} required /></label>
+        <label className="min-w-0">
+          <span className="label">Check-in</span>
+          <input
+            className="input mt-1 font-mono"
+            type="text"
+            inputMode="numeric"
+            pattern="\d{4}-\d{2}-\d{2}"
+            placeholder="YYYY-MM-DD"
+            value={checkIn}
+            onChange={e => setCheckIn(e.target.value)}
+            required
+          />
+        </label>
+        <label className="min-w-0">
+          <span className="label">Check-out</span>
+          <input
+            className="input mt-1 font-mono"
+            type="text"
+            inputMode="numeric"
+            pattern="\d{4}-\d{2}-\d{2}"
+            placeholder="YYYY-MM-DD"
+            value={checkOut}
+            onChange={e => setCheckOut(e.target.value)}
+            required
+          />
+        </label>
         <label className="min-w-0"><span className="label">Guests</span><select className="input mt-1" value={guests} onChange={e => setGuests(e.target.value)}>{Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n}>{n}</option>)}</select></label>
         {locations.length ? (
           <label className="min-w-0">

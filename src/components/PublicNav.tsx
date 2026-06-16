@@ -12,11 +12,14 @@ export async function PublicNav() {
   });
 
   return (
-    <header className="sticky top-0 z-[100] border-b border-black/10 bg-cream/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
-        <Link href="/"><Logo /></Link>
-        <PublicNavMenu locations={locations.map(({ location }) => location)} />
-      </div>
-    </header>
+    <>
+      <header className="fixed inset-x-0 top-0 z-[9999] border-b border-black/10 bg-cream shadow-sm">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 lg:px-8">
+          <Link href="/"><Logo /></Link>
+          <PublicNavMenu locations={locations.map(({ location }) => location)} />
+        </div>
+      </header>
+      <div className="h-20" aria-hidden="true" />
+    </>
   );
 }

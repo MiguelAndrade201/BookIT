@@ -29,12 +29,12 @@ export function PublicNavMenu({ locations }: { locations: string[] }) {
         <Link href="/#properties" className="btn-primary py-2.5">Book Direct</Link>
       </nav>
 
-      <button className="rounded-xl border border-black/10 bg-white p-2 text-ink md:hidden" type="button" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+      <button className="relative z-[10000] rounded-xl border border-black/10 bg-white p-2 text-ink shadow-sm md:hidden" type="button" onClick={() => setMobileOpen(true)} aria-label="Open menu">
         <Menu className="h-5 w-5" />
       </button>
 
       {mobileOpen ? (
-        <div className="fixed inset-0 z-50 bg-black/45 md:hidden" onClick={() => setMobileOpen(false)}>
+        <div className="fixed inset-0 z-[10001] bg-black/45 md:hidden" onClick={() => setMobileOpen(false)}>
           <div className="ml-auto flex h-full w-[min(22rem,calc(100vw-2rem))] flex-col overflow-y-auto bg-cream p-4 text-ink shadow-2xl" onClick={event => event.stopPropagation()}>
             <div className="mb-4 flex items-center justify-between">
               <div>
