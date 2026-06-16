@@ -90,7 +90,7 @@ export function BookingWidget({
         <label className="min-w-0">
           <span className="label">Check-in</span>
           <input
-            className="input date-input mt-1 h-12"
+            className="input date-input mt-1"
             type="date"
             min={today}
             value={checkIn}
@@ -101,20 +101,19 @@ export function BookingWidget({
         <label className="min-w-0">
           <span className="label">Check-out</span>
           <input
-            className="input date-input mt-1 h-12"
+            className="input date-input mt-1"
             type="date"
             min={checkOutMin}
             value={checkOut}
             onChange={e => setCheckOut(e.target.value)}
             required
           />
-          <span className="mt-1 block text-[11px] font-semibold text-black/45">After {checkIn}</span>
         </label>
-        <label className="min-w-0"><span className="label">Guests</span><select className="input mt-1 h-12" value={guests} onChange={e => setGuests(e.target.value)}>{Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n}>{n}</option>)}</select></label>
+        <label className="min-w-0"><span className="label">Guests</span><select className="input mt-1" value={guests} onChange={e => setGuests(e.target.value)}>{Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n}>{n}</option>)}</select></label>
         {locations.length ? (
           <label className="min-w-0">
             <span className="label">Location</span>
-            <select className="input mt-1 h-12" value={location} onChange={e => setLocation(e.target.value)}>
+            <select className="input mt-1" value={location} onChange={e => setLocation(e.target.value)}>
               <option value="">All locations</option>
               {locations.map(item => <option key={item} value={item}>{item}</option>)}
             </select>
