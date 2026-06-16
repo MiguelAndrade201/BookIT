@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+
+
+model Property {
+  id              String          @id @default(cuid())
+  slug            String          @unique
+  name            String
+  tagline         String
+  location        String
+  address         String?
+  description     String
+  maxGuests       Int
+  bedrooms        Int
+  bathrooms       Float
+  baseNightlyRate Int
+  cleaningFee     Int             @default(0)
+  serviceFee      Int             @default(0)
+  minNights       Int             @default(1)
+  instantBook     Boolean         @default(false)
+  weekendRate     Int?
+  bankHolidayRate Int?
+  hostId          String?
+  heroImage       String
+  status          String          @default("DRAFT")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  images          PropertyImage[]
+  amenities       PropertyAmenity[]
+  feeds           CalendarFeed[]
+  blocks          CalendarBlock[]
+  bookings        Booking[]
+  reviews         Review[]
+  landingPages    LandingPage[]
+  dayPricings     DayPricing[]
+  discountCodes   DiscountCode[]
+  customBookings  CustomBookingLink[]
+  host            User?           @relation("HostedProperties", fields: [hostId], references: [id])
+}
+
+model User {
+  id             String     @id @default(cuid())
+  name           String
+  email          String     @unique
+  passwordHash   String
+  role           String     @default("CUSTOMER")
+  createdAt      DateTime   @default(now())
+  lastLoginAt    DateTime?
+  hostedProperties Property[] @relation("HostedProperties")
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  propertyId String
+  url        String
+  alt        String
+  sortOrder  Int      @default(0)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model Amenity {
+  id         String             @id @default(cuid())
+  name       String             @unique
+  icon       String             @default("Sparkles")
+  properties PropertyAmenity[]
+}
+
+model PropertyAmenity {
+  propertyId String
+  amenityId  String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amenity    Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, amenityId])
+}
+
+model CalendarFeed {
+  id           String         @id @default(cuid())
+  propertyId   String
+  source       String
+  name         String
+  feedUrl      String
+  syncEnabled  Boolean        @default(true)
+  lastSyncedAt DateTime?
+  property     Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model CalendarBlock {
+  id          String         @id @default(cuid())
+  propertyId  String
+  source      String
+  sourceEventId String?
+  startDate   DateTime
+  endDate     DateTime
+  title       String?
+  notes       String?
+  property    Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, startDate, endDate])
+}
+
+model Guest {
+  id        String    @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String?
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  propertyId  String
+  guestId     String
+  status      String        @default("PENDING")
+  checkIn     DateTime
+  checkOut    DateTime
+  guests      Int
+  nights      Int
+  nightlyRate Int
+  cleaningFee Int
+  serviceFee  Int
+  taxes       Int
+  total       Int
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guest       Guest         @relation(fields: [guestId], references: [id])
+}
+
+model DayPricing {
+  id         String   @id @default(cuid())
+  propertyId String
+  date       DateTime
+  price      Int
+  note       String?
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, date])
+}
+
+model DiscountCode {
+  id          String   @id @default(cuid())
+  propertyId  String?
+  code        String   @unique
+  type        String
+  value       Int
+  expiresAt   DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  property    Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model CustomBookingLink {
+  id          String   @id @default(cuid())
+  propertyId  String
+  token       String   @unique
+  checkIn     DateTime
+  checkOut    DateTime
+  guests      Int
+  total       Int
+  status      String   @default("OPEN")
+  guestEmail  String?
+  emailOnCreate Boolean @default(false)
+  notes       String?
+  createdAt   DateTime @default(now())
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  propertyId String
+  guestName  String
+  rating     Int
+  body       String
+  source     String   @default("Direct")
+  createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model LandingPage {
+  id          String   @id @default(cuid())
+  propertyId  String
+  slug        String   @unique
+  audience    String
+  headline    String
+  subheadline String
+  body        String
+  cta         String   @default("Check Availability")
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
