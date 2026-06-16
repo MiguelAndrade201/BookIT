@@ -60,11 +60,11 @@ export function BookingWidget({
   return (
     <form onSubmit={submit} className="card p-4 md:p-5">
       <div className={compact ? 'grid gap-3' : 'grid gap-3 md:grid-cols-4'}>
-        <label><span className="label">Check-in</span><input className="input mt-1" type="date" min={today} value={checkIn} onChange={e => setCheckIn(e.target.value)} required /></label>
-        <label><span className="label">Check-out</span><input className="input mt-1" type="date" min={checkOutMin} value={checkOut} onChange={e => setCheckOut(e.target.value)} required /></label>
-        <label><span className="label">Guests</span><select className="input mt-1" value={guests} onChange={e => setGuests(e.target.value)}>{Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n}>{n}</option>)}</select></label>
+        <label className="min-w-0"><span className="label">Check-in</span><input className="input mt-1" type="date" min={today} value={checkIn} onChange={e => setCheckIn(e.target.value)} required /></label>
+        <label className="min-w-0"><span className="label">Check-out</span><input className="input mt-1" type="date" min={checkOutMin} value={checkOut} onChange={e => setCheckOut(e.target.value)} required /></label>
+        <label className="min-w-0"><span className="label">Guests</span><select className="input mt-1" value={guests} onChange={e => setGuests(e.target.value)}>{Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n}>{n}</option>)}</select></label>
         {locations.length ? (
-          <label>
+          <label className="min-w-0">
             <span className="label">Location</span>
             <select className="input mt-1" value={location} onChange={e => setLocation(e.target.value)}>
               <option value="">All locations</option>

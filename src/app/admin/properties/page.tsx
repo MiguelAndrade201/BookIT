@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import path from 'path';
 import { rm } from 'fs/promises';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { Eye, Pencil, Plus, Power } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { EmptyState } from '@/components/admin/EmptyState';
@@ -14,17 +16,37 @@ async function togglePropertyStatus(formData: FormData) {
   const id = String(formData.get('id'));
   const status = String(formData.get('status')) === 'LIVE' ? 'DRAFT' : 'LIVE';
   await prisma.property.update({ where: { id }, data: { status } });
+  revalidatePath('/admin/properties');
 }
 
 async function deleteProperty(formData: FormData) {
   'use server';
   const id = String(formData.get('id'));
-  const property = await prisma.property.delete({ where: { id } });
+  const property = await prisma.property.findUnique({ where: { id }, select: { slug: true } });
+  if (!property) redirect('/admin/properties');
+
+  await prisma.$transaction([
+    prisma.propertyImage.deleteMany({ where: { propertyId: id } }),
+    prisma.propertyAmenity.deleteMany({ where: { propertyId: id } }),
+    prisma.calendarFeed.deleteMany({ where: { propertyId: id } }),
+    prisma.calendarBlock.deleteMany({ where: { propertyId: id } }),
+    prisma.booking.deleteMany({ where: { propertyId: id } }),
+    prisma.dayPricing.deleteMany({ where: { propertyId: id } }),
+    prisma.discountCode.deleteMany({ where: { propertyId: id } }),
+    prisma.customBookingLink.deleteMany({ where: { propertyId: id } }),
+    prisma.review.deleteMany({ where: { propertyId: id } }),
+    prisma.landingPage.deleteMany({ where: { propertyId: id } }),
+    prisma.property.delete({ where: { id } })
+  ]);
 
   await rm(path.join(process.cwd(), 'uploads', 'properties', property.slug), {
     recursive: true,
     force: true
   }).catch(() => undefined);
+
+  revalidatePath('/admin/properties');
+  revalidatePath('/admin/calendars');
+  redirect('/admin/properties');
 }
 
 export default async function AdminProperties() {

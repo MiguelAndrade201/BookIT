@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 import { KeyRound } from 'lucide-react';
 import { ADMIN_SESSION_COOKIE, createSessionToken, hashPassword, legacyAdminSessionToken, parseSessionToken, verifyPassword } from '@/lib/auth';
-import { PublicNav } from '@/components/PublicNav';
+import { Logo } from '@/components/Logo';
 import { prisma } from '@/lib/prisma';
 
 function safeNext(value?: string) {
@@ -53,8 +54,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <main className="min-h-screen bg-cream">
-      <PublicNav />
-      <section className="mx-auto flex min-h-[calc(100vh-88px)] max-w-md items-center px-4 py-12">
+      <header className="border-b border-black/10 bg-cream">
+        <div className="mx-auto flex max-w-md items-center justify-center px-4 py-4">
+          <Link href="/"><Logo /></Link>
+        </div>
+      </header>
+      <section className="mx-auto flex min-h-[calc(100vh-76px)] max-w-md items-center px-4 py-8 sm:py-12">
         <form action={login} className="card w-full p-6">
           <div className="mb-6 flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-sage text-white">

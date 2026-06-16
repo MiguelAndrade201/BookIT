@@ -67,6 +67,17 @@ export async function POST(req: Request) {
     if (!slug) return NextResponse.json({ error: 'A valid URL slug is required.' }, { status: 400 });
     if (!images.length) return NextResponse.json({ error: 'Upload at least one property image.' }, { status: 400 });
 
+    const requestedHostId = String(formData.get('hostId') || '');
+    const host = requestedHostId && requestedHostId !== 'env-super-admin'
+      ? await prisma.user.findFirst({
+        where: {
+          id: requestedHostId,
+          role: { in: ['SUPER_ADMIN', 'ADMIN'] }
+        },
+        select: { id: true }
+      })
+      : null;
+
     const imageUrls = [];
     for (const [index, image] of images.entries()) {
       imageUrls.push(await saveImage(image, slug, index));
@@ -90,7 +101,7 @@ export async function POST(req: Request) {
         instantBook: formData.get('instantBook') === 'on',
         weekendRate: formData.get('weekendRate') ? dollarsToCents(formData.get('weekendRate')) : null,
         bankHolidayRate: formData.get('bankHolidayRate') ? dollarsToCents(formData.get('bankHolidayRate')) : null,
-        hostId: String(formData.get('hostId') || '') || null,
+        hostId: host?.id ?? null,
         heroImage: imageUrls[0],
         status: String(formData.get('status') || 'DRAFT'),
         images: {

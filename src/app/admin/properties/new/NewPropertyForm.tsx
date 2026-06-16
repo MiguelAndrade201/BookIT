@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { GripVertical, ImagePlus, Loader2, Trash2, Upload } from 'lucide-react';
+import { ArrowDown, ArrowUp, GripVertical, ImagePlus, Loader2, Trash2, Upload } from 'lucide-react';
 
 type UploadItem = {
   id: string;
@@ -38,7 +38,7 @@ async function prepareUploadFile(file: File) {
   if (file.type === 'image/gif') return file;
 
   const image = await loadImage(file);
-  const maxDimension = 2000;
+  const maxDimension = 1400;
   const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
   const width = Math.max(1, Math.round(image.width * scale));
   const height = Math.max(1, Math.round(image.height * scale));
@@ -53,7 +53,7 @@ async function prepareUploadFile(file: File) {
   context.drawImage(image, 0, 0, width, height);
 
   const blob = await new Promise<Blob | null>(resolve => {
-    canvas.toBlob(resolve, 'image/jpeg', 0.84);
+    canvas.toBlob(resolve, 'image/jpeg', 0.72);
   });
 
   if (!blob) return file;
@@ -62,19 +62,30 @@ async function prepareUploadFile(file: File) {
   return new File([blob], `${safeName}.jpg`, { type: 'image/jpeg', lastModified: Date.now() });
 }
 
-export function NewPropertyForm({ hosts = [] }: { hosts?: { id: string; name: string; email: string }[] }) {
+export function NewPropertyForm({
+  hosts = [],
+  isSuperAdmin = false
+}: {
+  hosts?: { id: string; name: string; email: string }[];
+  isSuperAdmin?: boolean;
+}) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imagesRef = useRef<UploadItem[]>([]);
   const [images, setImages] = useState<UploadItem[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    return () => {
-      images.forEach(image => URL.revokeObjectURL(image.previewUrl));
-    };
+    imagesRef.current = images;
   }, [images]);
+
+  useEffect(() => {
+    return () => {
+      imagesRef.current.forEach(image => URL.revokeObjectURL(image.previewUrl));
+    };
+  }, []);
 
   function addFiles(fileList: FileList | File[]) {
     const files = Array.from(fileList).filter(file => file.type.startsWith('image/'));
@@ -110,6 +121,18 @@ export function NewPropertyForm({ hosts = [] }: { hosts?: { id: string; name: st
     });
   }
 
+  function moveImageByIndex(index: number, direction: -1 | 1) {
+    setImages(current => {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= current.length) return current;
+
+      const next = [...current];
+      const [item] = next.splice(index, 1);
+      next.splice(targetIndex, 0, item);
+      return next;
+    });
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -127,6 +150,13 @@ export function NewPropertyForm({ hosts = [] }: { hosts?: { id: string; name: st
       preparedImages = await Promise.all(images.map(image => prepareUploadFile(image.file)));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'One of the selected images could not be prepared for upload.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const totalUploadBytes = preparedImages.reduce((total, image) => total + image.size, 0);
+    if (totalUploadBytes > 22 * 1024 * 1024) {
+      setError('Those images are still too large after compression. Please remove a few or choose smaller photos.');
       setIsSubmitting(false);
       return;
     }
@@ -188,10 +218,15 @@ export function NewPropertyForm({ hosts = [] }: { hosts?: { id: string; name: st
           <input type="checkbox" name="instantBook" className="h-4 w-4" />
           Automatically confirm bookings
         </label>
-        <select className="input sm:col-span-2" name="hostId" defaultValue="">
-          <option value="">Choose host</option>
+        <select className="input sm:col-span-2" name="hostId" defaultValue={hosts.length === 1 ? hosts[0].id : ''}>
+          <option value="">{hosts.length ? 'Choose host' : 'No admin hosts available'}</option>
           {hosts.map(host => <option key={host.id} value={host.id}>{host.name} ({host.email})</option>)}
         </select>
+        {!hosts.length ? (
+          <p className="text-sm font-semibold text-red-700 sm:col-span-3">
+            {isSuperAdmin ? 'Create an admin user first, then assign them as the host.' : 'Your admin user could not be found as a host.'}
+          </p>
+        ) : null}
       </section>
 
       <section>
@@ -226,7 +261,7 @@ export function NewPropertyForm({ hosts = [] }: { hosts?: { id: string; name: st
         </button>
 
         {images.length ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
             {images.map((image, index) => (
               <div
                 key={image.id}
@@ -237,7 +272,7 @@ export function NewPropertyForm({ hosts = [] }: { hosts?: { id: string; name: st
                 onDrop={() => {
                   if (draggingId) moveImage(draggingId, image.id);
                 }}
-                className={`cursor-grab overflow-hidden rounded-xl border bg-white active:cursor-grabbing ${index === 0 ? 'border-sage ring-2 ring-sage/20' : 'border-black/10'}`}
+                className={`cursor-grab overflow-hidden rounded-xl border bg-white active:cursor-grabbing ${index === 0 ? 'col-span-2 border-sage ring-2 ring-sage/20 lg:col-span-2' : 'border-black/10'}`}
               >
                 <div className="relative aspect-[4/3] bg-cream">
                   <img src={image.previewUrl} alt="" draggable={false} className="h-full w-full select-none object-cover" />
@@ -252,9 +287,31 @@ export function NewPropertyForm({ hosts = [] }: { hosts?: { id: string; name: st
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="flex items-center gap-2 p-3 text-sm">
+                <div className="flex min-h-14 items-center gap-2 p-3 text-sm">
                   <GripVertical className="h-4 w-4 shrink-0 text-black/40" />
                   <span className="truncate font-semibold">{image.file.name}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-px border-t border-black/10 bg-black/10">
+                  <button
+                    type="button"
+                    onClick={() => moveImageByIndex(index, -1)}
+                    disabled={index === 0}
+                    className="grid min-h-10 place-items-center bg-white text-ink disabled:text-black/25"
+                    aria-label="Move image earlier"
+                    title="Move earlier"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveImageByIndex(index, 1)}
+                    disabled={index === images.length - 1}
+                    className="grid min-h-10 place-items-center bg-white text-ink disabled:text-black/25"
+                    aria-label="Move image later"
+                    title="Move later"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             ))}

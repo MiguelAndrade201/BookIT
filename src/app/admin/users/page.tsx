@@ -24,15 +24,6 @@ export default async function UsersPage() {
   const session = await parseSessionToken((await cookies()).get(ADMIN_SESSION_COOKIE)?.value);
   if (session?.role !== 'SUPER_ADMIN') redirect('/admin');
   const users = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
-  const envAdmin = {
-    id: 'env-super-admin',
-    name: process.env.ADMIN_USERNAME ?? 'Miguel',
-    email: process.env.ADMIN_EMAIL ?? 'Environment Super Admin',
-    role: 'SUPER_ADMIN',
-    createdAt: null as Date | null,
-    lastLoginAt: null as Date | null
-  };
-  const rows = users.some(user => user.name === envAdmin.name || user.email === envAdmin.email) ? users : [envAdmin, ...users];
 
   return (
     <div>
@@ -54,12 +45,12 @@ export default async function UsersPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-sand/40 text-xs uppercase tracking-wider text-black/55"><tr><th className="p-4">User</th><th>Role</th><th>Last login</th><th>Created</th></tr></thead>
             <tbody>
-              {rows.map(user => (
+              {users.map(user => (
                 <tr key={user.id} className="border-t border-black/10">
                   <td className="p-4"><div className="font-semibold">{user.name}</div><div className="text-black/50">{user.email}</div></td>
                   <td>{user.role}</td>
-                  <td>{user.lastLoginAt ? user.lastLoginAt.toLocaleString() : user.id === 'env-super-admin' ? 'Environment login' : 'Never'}</td>
-                  <td>{user.createdAt ? user.createdAt.toLocaleDateString() : 'Environment'}</td>
+                  <td>{user.lastLoginAt ? user.lastLoginAt.toLocaleString() : 'Never'}</td>
+                  <td>{user.createdAt.toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
