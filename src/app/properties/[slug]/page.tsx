@@ -87,16 +87,21 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
   return (
     <main>
       <PublicNav />
-      <section className="relative overflow-hidden bg-ink text-white">
-        <img src={property.heroImage} alt={property.name} className="absolute inset-0 h-full w-full object-cover opacity-55" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-        <div className="relative mx-auto max-w-7xl px-4 py-16 lg:grid lg:grid-cols-[1fr_520px] lg:gap-10 lg:px-8 lg:py-24">
-          <div className="self-center">
-            <p className="mb-3 flex items-center gap-2 text-white/80"><MapPin size={18} />{property.location}</p>
-            <h1 className="font-serif text-5xl leading-tight md:text-7xl">{property.name}</h1>
-            <p className="mt-5 max-w-2xl text-xl text-white/85">{property.tagline}</p>
+      <section className="bg-cream">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-8 lg:px-8 lg:py-12">
+          <div className="min-w-0">
+            <div className="overflow-hidden rounded-xl border border-black/10 bg-white shadow-soft">
+              <img src={property.heroImage} alt={property.name} className="aspect-[16/10] w-full object-cover" />
+            </div>
+            <div className="mt-6">
+              <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-black/55"><MapPin size={18} className="text-sage" />{property.location}</p>
+              <h1 className="font-serif text-4xl leading-tight text-ink md:text-6xl">{property.name}</h1>
+              <p className="mt-4 max-w-2xl text-lg text-black/70">{property.tagline}</p>
+            </div>
           </div>
-          <div className="mt-8 text-ink lg:mt-0"><BookingWidget propertySlug={property.slug} compact calendarRanges={publicBlockedRanges} /></div>
+          <div className="self-start lg:sticky lg:top-24">
+            <BookingWidget propertyId={property.id} propertySlug={property.slug} compact calendarRanges={publicBlockedRanges} />
+          </div>
         </div>
       </section>
 
